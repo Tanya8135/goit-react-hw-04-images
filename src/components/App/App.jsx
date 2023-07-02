@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Button from 'components/Button';
@@ -16,13 +16,15 @@ const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
 
-  const handleAddImages = useCallback(async (query, nextPage = null) => {
+  const handleAddImages = async (query, nextPage = null) => {
     setLoading(true);
-  
+
     try {
       const fetchedImages = await fetchImages(query, nextPage || currentPage);
-      const newImages = nextPage ? [...images, ...fetchedImages] : fetchedImages;
-  
+      const newImages = nextPage
+        ? [...images, ...fetchedImages]
+        : fetchedImages;
+
       setImages(newImages);
       setCurrentPage(nextPage ? nextPage : 1);
       setQuery(query);
@@ -31,16 +33,16 @@ const App = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, images]);
+  };
 
   useEffect(() => {
     if (images.length === 0) {
       return;
     }
 
-    setImages([]); // Очищаємо зображення перед завантаженням нового запиту
+    setImages([]);
     handleAddImages(query);
-  }, [query, images.length, handleAddImages]);
+  }, [query]);
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
