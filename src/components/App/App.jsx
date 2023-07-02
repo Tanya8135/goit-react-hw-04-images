@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Button from 'components/Button';
@@ -13,24 +13,23 @@ const initialState = {
   images: [],
   currentPage: 1,
   query: '',
-  showModal: false,
-  selectedImage: null,
 };
 
-class App extends Component {
-  state = initialState;
+const App = () => {
+  const [state, setState] = useState(initialState);
 
-  handleAddImages = async (query, nextPage = null) => {
-    this.setState({ loading: true });
+  const handleAddImages = async (query, nextPage = null) => {
+    setState(prevState => ({
+      ...prevState,
+      loading: true,
+    }));
 
     try {
-      const images = await fetchImages(
-        query,
-        nextPage || this.state.currentPage
-      );
-      const newImages = nextPage ? [...this.state.images, ...images] : images;
+      const images = await fetchImages(query, nextPage || state.currentPage);
+      const newImages = nextPage ? [...state.images, ...images] : images;
 
-      this.setState(prevState => ({
+      setState(prevState => ({
+        ...prevState,
         images: newImages,
         currentPage: nextPage ? nextPage : 1,
         query,
@@ -38,51 +37,55 @@ class App extends Component {
     } catch (err) {
       console.error('Error fetching images:', err);
     } finally {
-      this.setState({ loading: false });
+      setState(prevState => ({
+        ...prevState,
+        loading: false,
+      }));
     }
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    const { query } = this.state;
-
-    if (query !== prevState.query) {
-      this.setState({ images: [] });
-      this.handleAddImages(query);
+  useEffect(() => {
+    if (state.images.length === 0) {
+      return; // Не виконувати запит при першому рендері, якщо масив images порожній
     }
-  }
 
-  handleLoadMore = () => {
-    const { query, currentPage } = this.state;
+    const { query } = state;
+    setState(prevState => ({
+      ...prevState,
+      images: [],
+    }));
+    handleAddImages(query);
+  }, [state.query]);
+
+  const handleLoadMore = () => {
+    const { query, currentPage } = state;
     const nextPage = currentPage + 1;
-    this.handleAddImages(query, nextPage);
+    handleAddImages(query, nextPage);
   };
 
-  handleToggleModule = imageURL => {
-    this.setState(prevState => ({
+  const handleToggleModule = imageURL => {
+    setState(prevState => ({
+      ...prevState,
       showModal: !prevState.showModal,
       selectedImage: imageURL,
     }));
   };
 
-  render() {
-    const { loading, images, showModal, selectedImage } = this.state;
-    const showButton = images.length > 11;
-    const searching = loading && !showButton;
+  const { loading, images, showModal, selectedImage } = state;
+  const showButton = images.length > 11;
+  const searching = loading && !showButton;
 
-    return (
-      <div className={style.appBox}>
-        <SearchBar onSubmit={this.handleAddImages} />
-        <ImageGallery images={images} onImageClick={this.handleToggleModule} />
-        {showButton && (
-          <Button onClick={this.handleLoadMore} isDisabled={loading} />
-        )}
-        {loading && !searching && <Loader />}
-        {showModal && (
-          <Modal imageUrl={selectedImage} onClose={this.handleToggleModule} />
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div className={style.appBox}>
+      <SearchBar onSubmit={handleAddImages} />
+      <ImageGallery images={images} onImageClick={handleToggleModule} />
+      {showButton && <Button onClick={handleLoadMore} isDisabled={loading} />}
+      {loading && !searching && <Loader />}
+      {showModal && (
+        <Modal imageUrl={selectedImage} onClose={handleToggleModule} />
+      )}
+    </div>
+  );
+};
 
 export default App;

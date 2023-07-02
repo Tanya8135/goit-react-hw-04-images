@@ -1,35 +1,39 @@
-import { Component } from 'react';
+import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import * as basicLightbox from 'basiclightbox';
+
+import 'basiclightbox/dist/basicLightbox.min.css';
 
 import style from './Modal.module.css';
 
-class Modal extends Component {
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown);
-  }
+const Modal = ({ imageUrl, alt, onClose }) => {
+  const modalRef = useRef(null);
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleKeyDown = event => {
-    if (event.code === 'Escape') {
-      this.props.onClose();
-    }
-  };
-
-  render() {
-    const { imageUrl, alt, onClose } = this.props;
-
-    return (
-      <div className={style.overlay} onClick={onClose}>
-        <div className={style.modal}>
-          <img src={imageUrl} alt={alt} />
-        </div>
+  useEffect(() => {
+    const instance = basicLightbox.create(`
+      <div class="${style.modal}">
+        <img src="${imageUrl}" alt="${alt}" width="1000" />
       </div>
-    );
-  }
-}
+    `);
+
+    modalRef.current = instance;
+
+    const handleKeyDown = evt => {
+      if (evt.code === 'Escape') {
+        modalRef.current.close();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    modalRef.current.show();
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      modalRef.current.close();
+    };
+  }, [imageUrl, alt]);
+};
 
 Modal.propTypes = {
   imageUrl: PropTypes.string.isRequired,
