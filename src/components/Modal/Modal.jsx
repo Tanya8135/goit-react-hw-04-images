@@ -6,14 +6,14 @@ import 'basiclightbox/dist/basicLightbox.min.css';
 
 import style from './Modal.module.css';
 
-const Modal = ({ imageUrl, alt, onClose }) => {
+const Modal = ({ imageUrl, alt }) => {
   const modalRef = useRef(null);
 
   useEffect(() => {
     const instance = basicLightbox.create(`
-      <div class="${style.modal}">
-        <img src="${imageUrl}" alt="${alt}" width="1000" />
-      </div>
+        <div class="${style.modal}">
+          <img src="${imageUrl}" alt="${alt}" width="800" />
+        </div>
     `);
 
     modalRef.current = instance;
@@ -33,6 +33,8 @@ const Modal = ({ imageUrl, alt, onClose }) => {
       modalRef.current.close();
     };
   }, [imageUrl, alt]);
+
+  return <div className={style.overlay}></div>;
 };
 
 Modal.propTypes = {

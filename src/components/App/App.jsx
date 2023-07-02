@@ -16,19 +16,19 @@ const initialState = {
 };
 
 const App = () => {
-  const [state, setState] = useState(initialState);
+  const [stateImg, setStateImg] = useState(initialState);
 
   const handleAddImages = async (query, nextPage = null) => {
-    setState(prevState => ({
+    setStateImg(prevState => ({
       ...prevState,
       loading: true,
     }));
 
     try {
-      const images = await fetchImages(query, nextPage || state.currentPage);
-      const newImages = nextPage ? [...state.images, ...images] : images;
+      const images = await fetchImages(query, nextPage || stateImg.currentPage);
+      const newImages = nextPage ? [...stateImg.images, ...images] : images;
 
-      setState(prevState => ({
+      setStateImg(prevState => ({
         ...prevState,
         images: newImages,
         currentPage: nextPage ? nextPage : 1,
@@ -37,7 +37,7 @@ const App = () => {
     } catch (err) {
       console.error('Error fetching images:', err);
     } finally {
-      setState(prevState => ({
+      setStateImg(prevState => ({
         ...prevState,
         loading: false,
       }));
@@ -45,33 +45,33 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (state.images.length === 0) {
-      return; // Не виконувати запит при першому рендері, якщо масив images порожній
+    if (stateImg.images.length === 0) {
+      return;
     }
 
-    const { query } = state;
-    setState(prevState => ({
+    const { query } = stateImg;
+    setStateImg(prevState => ({
       ...prevState,
       images: [],
     }));
     handleAddImages(query);
-  }, [state.query]);
+  }, []);
 
   const handleLoadMore = () => {
-    const { query, currentPage } = state;
+    const { query, currentPage } = stateImg;
     const nextPage = currentPage + 1;
     handleAddImages(query, nextPage);
   };
 
   const handleToggleModule = imageURL => {
-    setState(prevState => ({
+    setStateImg(prevState => ({
       ...prevState,
       showModal: !prevState.showModal,
       selectedImage: imageURL,
     }));
   };
 
-  const { loading, images, showModal, selectedImage } = state;
+  const { loading, images, showModal, selectedImage } = stateImg;
   const showButton = images.length > 11;
   const searching = loading && !showButton;
 
