@@ -34,7 +34,7 @@ const App = () => {
       setLoading(false);
     }
   };
-  // eslint-disable-next-line
+  
   useEffect(() => {
     if (query.trim() === '') {
       return;
