@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Button from 'components/Button';
@@ -34,7 +34,7 @@ const App = () => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (query.trim() === '') {
       return;
