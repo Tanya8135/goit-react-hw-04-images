@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import SearchBar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Button from 'components/Button';
@@ -34,9 +34,9 @@ const App = () => {
       setLoading(false);
     }
   };
-
+  // eslint-disable-next-line
   useEffect(() => {
-    if (images.length === 0) {
+    if (query.trim() === '') {
       return;
     }
 
